@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  resizarr:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: resizarr
+    ports:
+      - "5200:5200"
+    volumes:
+      # Database and configuration
+      - ./data:/data
+      - ./config:/app/config
+      
+      # Media folders (adjust these to your needs)
+      - /path/to/your/media:/media
+      - /path/to/your/temp:/tmp/resizarr
+      
+    environment:
+      - ConnectionStrings__DefaultConnection=Data Source=/data/resizarr.db
+      - Resizarr__MaxConcurrentJobs=2
+      - Resizarr__TempDirectory=/tmp/resizarr
+      - Resizarr__FFmpegPath=/usr/bin/ffmpeg
+      - Resizarr__FFprobePath=/usr/bin/ffprobe
+      - Resizarr__EnableHardwareAcceleration=true
+      - ASPNETCORE_URLS=http://+:5200
+      
+    restart: unless-stopped
+    
+    # Uncomment if you need GPU access for hardware acceleration
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
